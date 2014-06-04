@@ -103,6 +103,7 @@ function constructGoogleChart(el, name, data, options, Chart) {
     chart.draw(data, currentOptions);
     if (pendingSelection[name]) {
       chart.setSelection(pendingSelection[name]);
+      Shiny.onInputChange(name + '_selection', pendingSelection[name]);
     }
   } else {
     chart.clearChart();
@@ -178,6 +179,7 @@ Shiny.addCustomMessageHandler(
       pendingSelection[data.id] = data.selection;
     } else {
       $chart.data('googleChart').setSelection(data.selection);
+      Shiny.onInputChange(data.id + '_selection', data.selection);
     }
   }
 );

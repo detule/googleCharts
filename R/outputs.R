@@ -88,7 +88,7 @@ googleChartsInit <- function(chartTypes = c('ALL',
     tags$script(type='text/javascript', src='https://www.google.com/jsapi'),
     tags$script(HTML(
       sprintf('google.load("visualization", "1.1", {packages: %s});',
-              RJSONIO::toJSON(libs))
+              RJSONIO::toJSON(unname(unique(libs))))
     )),
     tags$script(src='googleCharts/bindings.js')
   )

@@ -77,18 +77,21 @@ var pendingSelection = {};
 
 // Create or update the Google chart on the el, as directed by
 // the dataObj.
-function constructGoogleChart(el, name, data, options, Chart) {
+function constructGoogleChart(el, name, data, options, chartType) {
   var $el = $(el);
-  var chart = $el.data('googleChart');
-  if (!chart) {
+  var wrapper = $el.data('googleChart');
+  if (!wrapper) {
     if (!data)
       return;
-    chart = new Chart(el);
-    $el.data('googleChart', chart);
-    chart.options = JSON.parse($el.children('script').text());
-    google.visualization.events.addListener(chart, 'select', function() {
+    wrapper = new google.visualization.ChartWrapper({
+      chartType: chartType,
+      containerId: name
+    });
+    $el.data('googleChart', wrapper);
+    wrapper.setOptions(JSON.parse($el.children('script').text()));
+    google.visualization.events.addListener(wrapper, 'select', function() {
       var value = null;
-      var selection = chart.getSelection();
+      var selection = wrapper.getChart().getSelection();
       if (selection && selection.length > 0) {
         value = selection;
       }
@@ -99,16 +102,18 @@ function constructGoogleChart(el, name, data, options, Chart) {
   }
   
   if (data) {
-    var currentOptions = $.extend(true, chart.options, options);
-    chart.draw(data, currentOptions);
+    var currentOptions = $.extend(true, wrapper.getOptions(), options);
+    wrapper.setDataTable(data);
+    wrapper.setOptions(currentOptions);
+    wrapper.draw();
     if (pendingSelection[name]) {
-      chart.setSelection(pendingSelection[name]);
+      wrapper.getChart().setSelection(pendingSelection[name]);
     }
   } else {
-    chart.clearChart();
+    wrapper.getChart().clearChart();
   }
   delete pendingSelection[name];
-  chart.data = data;
+  wrapper.setDataTable(data);
 }
 
 function createBinding(chartName, chartType) {
@@ -126,7 +131,7 @@ function createBinding(chartName, chartType) {
       waitForGoogleLoad(function() {
         constructGoogleChart(el, self.getId(el),
           toDataTable(dataObj.data), dataObj.options,
-          google.visualization[chartType]);
+          chartType);
       });
     }
   });
@@ -177,7 +182,7 @@ Shiny.addCustomMessageHandler(
     if ($chart.length === 0 || !$chart.data('googleChart')) {
       pendingSelection[data.id] = data.selection;
     } else {
-      $chart.data('googleChart').setSelection(data.selection);
+      $chart.data('googleChart').getChart().setSelection(data.selection);
     }
   }
 );

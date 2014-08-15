@@ -1,98 +1,28 @@
+#' Initialize Google Charts
+#' 
+#' This method is deprecated and no longer needed.  Leaving a stub behind
+#' so as to not break existing dashboards.
+#'
+#' Old description (NO LONGER RELEVANT):
+#' This must be called in \code{shinyUI} to load the appropriate Google
+#' Charts JavaScript libraries into the page.
+#'
+#' @param chartTypes Character vector that specifies the types of charts
+#'   that will be used on this page.
+#'
+#' @examples
+#' TODO
+#'
+#' @export
+googleChartsInit <- function(chartTypes = c('ALL')) {
+}
+
 setMethod("toJSON", "Date",
           function(x, container =  isContainer(x, asIs, .level),
                    collapse = "\n", ..., .level = 1L,
                    .withNames = length(x) > 0 && length(names(x)) > 0, .na = "null", pretty = FALSE, asIs = NA) {
             toJSON(gsub("-", "/", as.character(x)), container, collapse, ..., .level = .level, .withNames = .withNames, .na = .na, pretty = pretty, asIs = asIs)
           })
-
-chartlibs = list(
-  corechart = 'corechart',
-
-  annotatedtimeline = 'annotatedtimeline',
-  area = 'corechart',
-  bar = 'corechart',
-  bubble = 'corechart',
-  calendar = 'calendar',
-  candlestick = 'corechart',
-  column = 'corechart',
-  combo = 'corechart',
-  gauge = 'gauge',
-  geo = 'geochart',
-  geomap = 'geomap',
-  histogram = 'corechart',
-  intensitymap = 'intensitymap',
-  line = 'corechart',
-  map = 'map',
-  motion = 'motionchart',
-  org = 'orgchart',
-  pie = 'corechart',
-  scatter = 'corechart',
-  steppedarea = 'corechart',
-  table = 'table',
-  timeline = 'timeline',
-  treemap = 'treemap',
-  sankey = 'sankey'
-)
-
-#' Initialize Google Charts
-#' 
-#' This must be called in \code{shinyUI} to load the appropriate Google 
-#' Charts JavaScript libraries into the page.
-#' 
-#' @param chartTypes Character vector that specifies the types of charts
-#'   that will be used on this page.
-#'
-#' @examples
-#' TODO
-#'   
-#' @export
-googleChartsInit <- function(chartTypes = c('ALL',
-  'annotatedtimeline',
-  'area',
-  'bar',
-  'bubble',
-  'calendar',
-  'candlestick',
-  'column',
-  'combo',
-  'gauge',
-  'geo',
-  'geomap',
-  'intensitymap',
-  'line',
-  'map',
-  'motion',
-  'org',
-  'pie',
-  'sankey',
-  'scatter',
-  'steppedarea',
-  'table',
-  'timeline',
-  'treemap')) {
-
-  addResourcePath('googleCharts', system.file('www', package='googleCharts'))
-
-  libs <- character()
-  if ('ALL' %in% chartTypes) {
-    libs <- as.character(unique(chartlibs))
-  } else {
-    libs <- sapply(chartTypes, function(type) {
-      if (is.null(chartlibs[[type]]))
-        stop('Unknown chart type ', type)
-      return(chartlibs[[type]])
-    })
-  }
-
-  tagList(
-    tags$script(type='text/javascript', src='https://www.google.com/jsapi'),
-    tags$script(HTML(
-      sprintf('google.load("visualization", "1.1", {packages: %s});',
-              RJSONIO::toJSON(unname(unique(libs))))
-    )),
-    tags$script(src='googleCharts/bindings.js')
-  )
-}
 
 joinattr <- function(name, value, attrs) {
   if (is.null(attrs[[name]]))
@@ -111,6 +41,8 @@ googleSetSelection <- function(session, id, selection) {
 }
 
 googleOutput <- function(outputId, class, width, height, options, ...) {
+  addResourcePath('googleCharts', system.file('www', package='googleCharts'))
+
   args <- list(...)
   
   className <- paste('shiny', 'google', class, 'output', sep='-')
@@ -126,9 +58,13 @@ googleOutput <- function(outputId, class, width, height, options, ...) {
     options <- RJSONIO::emptyNamedList
   
   div <- do.call(tags$div, args)
-  return(tagAppendChild(
-    div,
-    tags$script(type='application/json', RJSONIO::toJSON(options))
+  return(tagList(
+      singleton(
+        tags$head(tags$script(src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1"}]}')
+                  ,tags$script(src='googleCharts/bindings.js'))),
+      tagAppendChild(
+        div,
+        tags$script(type='application/json', RJSONIO::toJSON(options)))
   ))
 }
 

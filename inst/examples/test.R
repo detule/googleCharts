@@ -2,6 +2,19 @@ googleCharts::googleChart(
   data.table(name=c('Germany', 'USA', 'Brazil', 'Canada', 'France', 'RU'), value=c(700, 300, 400, 500, 600, 800))
   ,chart.type="Table")
 
+googleCharts::googleChart(
+  data.frame(
+    Major = c("Business", "Education", "Social Sciences", "Health", "Psychology")
+    ,Degrees = c(256070, 108034, 127101, 81863, 74194)
+    ,Degrees_new = c(358293, 101265, 172780, 129634, 97216)
+  ), columns = list(Degrees = list(role="old-data"))
+  ,chart.type = "PieChart"
+) %>%
+  googleChartOptions(
+    diff = list(innerCircle = list(borderFactor= 0.08))
+  )
+
+
 library(quantmod)
 library(data.table)
 getSymbols("AAPL", from="1990-01-01", src="yahoo")

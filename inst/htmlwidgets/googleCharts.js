@@ -38,7 +38,7 @@ HTMLWidgets.widget({
         var wrapper = this.wrapper;
         var data = x.data
 
-//        var options = x.options;
+        var options = x.options;
         var chartType = x.chartType;
         data.unshift(Object.keys(x.columns).map(function(k){return x.columns[k]}));
        
@@ -46,16 +46,15 @@ HTMLWidgets.widget({
           if (!data)
             return;
           wrapper = new google.visualization.ChartWrapper({
-            options: {'title': 'Countries'},
             chartType: chartType,
             containerId: el.id
           })
           wrapper.setDataTable(data)
-//          wrapper.setOptions(options)
+          wrapper.setOptions(options)
         }
         if (data) {
           wrapper.setDataTable(data)
-//          wrapper.setOptions(options)
+          wrapper.setOptions(options)
         } else {
           wrapper.getChart().clearChart();
         }

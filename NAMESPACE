@@ -1,4 +1,8 @@
 exportPattern("^[[:alpha:]]+")
 export(googleChart)
+export(googleChartOptions)
 export(googleChartOutput)
 export(renderGoogleChart)
+
+importFrom(magrittr,"%>%")
+export("%>%")

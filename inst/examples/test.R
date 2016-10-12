@@ -4,10 +4,14 @@ googleCharts::googleChart(
 
 library(quantmod)
 getSymbols("AAPL", from="1990-01-01", src="yahoo")
-googleCharts::googleChart(
+df.aapl.prices <-
   data.frame(Date = index(AAPL), close = as.numeric(AAPL[,"AAPL.Close"]), volume=as.numeric(AAPL[,"AAPL.Close"]))
+
+googleCharts::googleChart(
+  df.aapl.prices
   ,columns = list(volume=list(role="tooltip")), chart.type="ColumnChart"
-)
+) %>%
+  googleCharts::googleChartOptions(title="Apple Closing Prices", legend = list(position = "bottom"))
 
 
 library(shiny)
@@ -21,7 +25,7 @@ shiny::shinyApp(
   ,server = function(input, output, session) {
     output$test <- renderGoogleChart({
       googleCharts::googleChart(
-        data.frame(Date = index(AAPL), close = as.numeric(AAPL[,"AAPL.Close"]), volume=as.numeric(AAPL[,"AAPL.Close"]))
+        df.aapl.prices
         ,columns = list(volume=list(role="tooltip")), chart.type="ColumnChart"
       )
     })

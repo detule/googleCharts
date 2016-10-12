@@ -6,7 +6,7 @@ googleChartOptions <- function(gChart, ...) {
   # merge options into attrs$options
   gChart$x$options <- mergeLists(lst.existing.opts, list(...))
    
-  # return modified hotTable
+  # return modified googleChart
   gChart
 }
 

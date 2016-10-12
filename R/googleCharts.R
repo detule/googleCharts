@@ -22,7 +22,7 @@ googleChart <- function(data, chart.type, columns = NULL, width = NULL, height =
     for(str.col in names(data)[vec.col.gtable.classes =="date"]) {
       data[[str.col]] <- paste0(
         "Date("
-        ,apply(t(as.matrix(as.POSIXlt(data[[str.col]]))[,c("year", "mon", "mday")]) +
+        ,apply(t(as.matrix(as.POSIXlt(as.Date(data[[str.col]])))[,c("year", "mon", "mday")]) +
           rbind(rep(1900, length(data[str.col])),rep(0,length(data[[str.col]])), rep(0, length(data[[str.col]]))),2,FUN=function(x) paste(x, collapse=","))
         ,")")
     }

@@ -10,5 +10,6 @@ License: What license is it under?
 Imports:
     magrittr,
     htmlwidgets (>= 0.2.4),
-    htmltools
+    htmltools,
+    jsonlite
 Enhances: rmarkdown (>= 0.3.3), shiny (>= 0.10.2.1)

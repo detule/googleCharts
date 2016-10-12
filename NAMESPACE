@@ -1,2 +1,4 @@
 exportPattern("^[[:alpha:]]+")
 export(googleChart)
+export(googleChartOutput)
+export(renderGoogleChart)

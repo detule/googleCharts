@@ -36,12 +36,19 @@ HTMLWidgets.widget({
     return {
       renderValue: function(x) {
         var wrapper = this.wrapper;
-        var data = x.data
-
+        var rawData = x.data;
+        var data = null;
         var options = x.options;
         var chartType = x.chartType;
-        data.unshift(Object.keys(x.columns).map(function(k){return x.columns[k]}));
-       
+
+        if (rawData) {
+          rawData.unshift(Object.keys(x.columns).map(function(k){return x.columns[k]}));
+          data = google.visualization.arrayToDataTable(rawData);
+          if (options.formatter) {
+            options.formatter(data);
+          }
+       }
+
         if (!wrapper) {
           if (!data)
             return;
@@ -57,6 +64,9 @@ HTMLWidgets.widget({
           wrapper.setOptions(options)
         } else {
           wrapper.getChart().clearChart();
+        }
+        if(options.eventHandlers) {
+          options.eventHandlers(wrapper);
         }
         wrapper.draw();
       },

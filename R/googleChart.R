@@ -1,0 +1,111 @@
+#' @export
+googleChart <- function(data, chart.type, columns = NULL, width = NULL, height = NULL) {
+
+  if(!is.data.frame(data)) {
+    stop("googleCharts: An object of class data.frame is expected for the data parameter")
+  }
+
+  if(length(columns) != length(names(columns)) | !all(names(columns) %in% names(data))) {
+    stop("googleCharts: Improperly formatted `columns` parameter.  Must be",
+          " a named list with all(names(columns) %in% names(data))")
+  }
+
+  x <- list()
+  x$chartType = chart.type
+
+  #Let's figure out what kind of data-types are in the data.frame,
+  #translate these to Google's data-types, and merge the `columns`
+  #argument.
+  vec.col.classes <- sapply(data, class, USE.NAMES=T)
+  x$columns <- sapply(names(data), function(x) switch(vec.col.classes[x]
+      ,integer=list(label = x, type="number")
+      ,double=list(label = x, type="number")
+      ,numeric=list(label = x, type = "number")
+      ,character=list(label = x, type = "string")
+      ,logical=list(label = x, type = "boolean")
+      ,factor=list(label = x, type = "string")
+      ,Date=list(label = x, type = "date")
+      ,list(label = x, type = "string")), simplify=F, USE.NAMES=T)
+
+  #Make x$columns a named list so the user can easily merge individual
+  #column properties without having to specify the full array.
+  #We unname it (object->array) in the JS file.
+  
+  if(!is.null(columns)) {
+    x$columns <- mergeLists(x$columns, columns)
+  }
+  vec.col.gtable.classes <- sapply(x$columns, function(x) x$type)
+
+  #Let's leverage [R]'s vectorized functions to make the [R]::Date to JS::Date conversion.
+  #Here we use the ability to create dates from string literals:
+  #https://developers.google.com/chart/interactive/docs/datesandtimes#dates-and-times-using-the-date-string-representation
+  #Looks pretty ugly - may need to re-visit later.
+  if(any(vec.col.gtable.classes == "date")) {
+    for(str.col in names(data)[vec.col.gtable.classes =="date"]) {
+      data[[str.col]] <- paste0(
+        "Date("
+        ,apply(t(as.matrix(as.POSIXlt(as.Date(data[[str.col]])))[,c("year", "mon", "mday")]) +
+          rbind(rep(1900, length(data[str.col])),rep(0,length(data[[str.col]])), rep(0, length(data[[str.col]]))),2,FUN=function(x) paste(x, collapse=","))
+        ,")")
+    }
+  }
+  x$data <- jsonlite::toJSON(unname(data))
+
+  #Some default global options
+  x$options <- list(
+    eventHandlers = htmlwidgets::JS("
+                      function(wrapper) {
+                          if(typeof(Shiny) != 'undefined') {
+                            google.visualization.events.addListener(wrapper, 'select', function() {
+                              var selection = wrapper.getChart().getSelection();
+                              Shiny.onInputChange($('#'+wrapper.getContainerId()).closest('div.shiny-bound-output').attr('id') + '_selected', selection);
+                            })
+                          }
+                      }")
+  )
+
+  # create widget
+  htmlwidgets::createWidget(
+    name = "googleCharts",
+    x = x,
+    width = width,
+    height = height,
+    ,dependencies = htmltools::htmlDependency("api", 1
+      ,src=c("href"="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1'}]}")
+      ,script="")
+  )
+}
+
+
+#' Shiny bindings for googleCharts
+#' 
+#' Output and render functions for using googleCharts within Shiny 
+#' applications and interactive Rmd documents.
+#' 
+#' @param outputId output variable to read from
+#' @param width,height Must be a valid CSS unit (like \code{"100\%"},
+#'   \code{"400px"}, \code{"auto"}) or a number, which will be coerced to a
+#'   string and have \code{"px"} appended.
+#' @param expr An expression that generates a googleChart
+#' @param env The environment in which to evaluate \code{expr}.
+#' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This 
+#'   is useful if you want to save an expression in a variable.
+#'   
+#' @rdname googleChart-shiny
+#' @export
+googleChartOutput <- function(outputId, width = "100%", height = "400px") {
+  tagList(
+    htmltools::singleton(
+      tags$head(
+        tags$script(type = 'text/javascript'
+          ,src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1'}]}"))
+    )
+    ,htmlwidgets::shinyWidgetOutput(outputId, "googleCharts", width, height)
+  )
+}
+
+#' @export
+renderGoogleChart <- function(expr, env = parent.frame(), quoted = FALSE) {
+  if (!quoted) { expr <- substitute(expr) } # force quoted
+  htmlwidgets::shinyRenderWidget(expr, googleChartOutput, env, quoted = TRUE)
+}

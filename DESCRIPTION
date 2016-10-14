@@ -1,15 +1,16 @@
 Package: googleCharts
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: [R]/Markdown/Shiny bindings for Google Charts
+Version: 0.1
 Date: 2016-10-11
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Authors@R: c("Oliver", "Gjoneski", role = c("aut", "cre"))
+Maintainer: Oliver Gjoneski
+Description: An R interface to the Google Charts JavaScript charting library
+License: MIT
 Imports:
     magrittr,
-    htmlwidgets (>= 0.2.4),
-    htmltools,
+    htmlwidgets (>= 0.6),
+    htmltools (>= 0.3.5),
     jsonlite
 Enhances: rmarkdown (>= 0.3.3), shiny (>= 0.10.2.1)
+RoxygenNote: 5.0.1

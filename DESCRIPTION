@@ -3,8 +3,8 @@ Type: Package
 Title: [R]/Markdown/Shiny bindings for Google Charts
 Version: 0.1
 Date: 2016-10-11
-Authors@R: c("Oliver", "Gjoneski", role = c("aut", "cre"))
-Maintainer: Oliver Gjoneski
+Authors@R: c(person("Oliver", "Gjoneski", role = c("aut", "cre"), email="ogjoneski@gmail.com"))
+Maintainer: Oliver Gjoneski <ogjoneski@gmail.com>
 Description: An R interface to the Google Charts JavaScript charting library
 License: MIT
 Imports:

@@ -19,7 +19,7 @@ if (!Array.prototype.indexOf) {
     return -1;
   };
 }
-
+loadWidget = function() {
 HTMLWidgets.widget({
 
   name: "googleCharts",
@@ -27,7 +27,6 @@ HTMLWidgets.widget({
   type: "output",
 
   factory: function(el, width, height) {
-    
     var wrapper = null;
     // add qt style if we are running under Qt
     if (window.navigator.userAgent.indexOf(" Qt/") > 0)
@@ -80,4 +79,17 @@ HTMLWidgets.widget({
     };
   }
 });
+};
 
+(function() {
+  var script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://www.gstatic.com/charts/loader.js";
+  script.async = false;
+  script.onload = function() {
+    google.charts.load('current');
+    loadWidget();
+    HTMLWidgets.staticRender();
+  };
+  document.getElementsByTagName("head")[0].appendChild(script);
+})();

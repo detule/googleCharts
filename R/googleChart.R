@@ -69,10 +69,10 @@ googleChart <- function(data, chart.type, columns = NULL, width = NULL, height =
     name = "googleCharts",
     x = x,
     width = width,
-    height = height,
-    ,dependencies = htmltools::htmlDependency("api", 1
-      ,src=c("href"="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1'}]}")
-      ,script="")
+    height = height
+#    ,dependencies = htmltools::htmlDependency("api", 1
+#      ,src=c("href"="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1'}]}")
+#      ,script="")
   )
 }
 
@@ -108,4 +108,19 @@ googleChartOutput <- function(outputId, width = "100%", height = "400px") {
 renderGoogleChart <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, googleChartOutput, env, quoted = TRUE)
+}
+
+googxxxleCharts_html <- function(id, style, class, inject=T, ...) {
+  htmltools::tagList(
+    #The content of the singleton below belong
+    #inslde tags$head(...), however rmarkdown
+    #is truly difficult when it comes to constructing
+    #the markdown header.  Here it is prepended to each
+    #widget - now this autoloader is pretty lite but this is
+    #suboptimal.
+    htmltools::singleton(
+      htmltools::tags$script(src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1'}]}")
+    )
+    ,htmltools::tags$div(id = id, style = style, class = class)
+  )
 }

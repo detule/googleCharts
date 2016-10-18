@@ -34,7 +34,6 @@ loadWidget = function() {
 
       return {
         renderValue: function(x) {
-          var wrapper = this.wrapper;
           var rawData = x.data;
           var data = null;
           var options = x.options;

@@ -56,7 +56,8 @@ googleChart <- function(data, chart.type, columns = NULL, width = NULL, height =
 
   #Some default global options
   x$options <- list(
-    eventHandlers = htmlwidgets::JS("
+    width = ifelse(chart.type == "GeoMap", "556px", ifelse(chart.type == "MotionChart", "500px", "100%"))
+    ,eventHandlers = htmlwidgets::JS("
                       function(wrapper) {
                           if(typeof(Shiny) != 'undefined') {
                             google.visualization.events.addListener(wrapper, 'select', function() {

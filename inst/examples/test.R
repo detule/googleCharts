@@ -1,3 +1,4 @@
+library(googleCharts)
 googleCharts::googleChart(
   data.frame(
     Name=c('John', 'Mary', 'Steve', 'Ellen', 'Mike')
@@ -5,8 +6,7 @@ googleCharts::googleChart(
     ,`Full Time`=c(T,T,F,T,F)
     ,stringsAsFactors = F
   )
-  ,chart.type="Table") %>%
-  googleChartOptions(width="100%")
+  ,chart.type="Table")
 
 googleCharts::googleChart(
   data.frame(
@@ -15,7 +15,7 @@ googleCharts::googleChart(
     ,stringsAsFactors = F
   )
   ,chart.type="Table") %>%
-  googleChartOptions(width="100%", allowHtml = T, formatter=htmlwidgets::JS("
+  googleChartOptions(allowHtml = T, formatter=htmlwidgets::JS("
     function(data) {
       var formatter = new google.visualization.NumberFormat({prefix: '$', negativeColor: 'red', negativeParens: true});
       formatter.format(data, 1);
@@ -28,7 +28,7 @@ googleCharts::googleChart(
     ,stringsAsFactors = F
   )
   ,chart.type="Table") %>%
-  googleChartOptions(width="100%", allowHtml = T, formatter=htmlwidgets::JS("
+  googleChartOptions(allowHtml = T, formatter=htmlwidgets::JS("
     function(data) {
       var formatter = new google.visualization.BarFormat({width: 120});
       formatter.format(data, 1);
@@ -82,7 +82,8 @@ googleCharts::googleChart(
     ,Locations=c("East", "West", "West", "East", "West", "West")
     ,stringsAsFactors = F
   )
-  ,chart.type="MotionChart")
+  ,chart.type="MotionChart") %>%
+  googleChartOptions(width="500%")
 
 library(quantmod)
 library(data.table)

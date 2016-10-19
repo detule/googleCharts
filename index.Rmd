@@ -1,0 +1,198 @@
+---
+title: "Google Charts"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 4
+---
+
+```{r setup, include=FALSE}
+library(googleCharts)
+#Thank you quantmod+yahoo:
+data("df.sp.sector.values")
+#Thank you: https://www.gapminder.org/data/
+data("df.life_exp_v_gdp.data")
+#Thank you: http://www7.ncdc.noaa.gov/CDO/cdodata.cmd
+data("df.baltimore.temps")
+```
+
+## Design
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Data format
+
+## Chart Examples
+
+### Table
+```{r table, results='asis'}
+library(googleCharts)
+googleCharts::googleChart(
+  data.frame(
+    Name=c('John', 'Mary', 'Steve', 'Ellen', 'Mike')
+    ,Salary=c(10000, 25000, 8000, 20000, 12000)
+    ,`Full Time`=c(T,T,F,T,F)
+    ,stringsAsFactors = F
+  )
+  ,chart.type="Table"
+  ,height = "170px"
+)
+```
+
+### Annotation
+```{r test2, results='asis'}
+googleCharts::googleChart(
+  data.frame(
+    Date = as.Date(c("2314-03-15", "2314-03-16", "2314-03-17", "2314-03-18", "2314-03-19", "2314-03-20"))
+    ,`Kepler-22b mission`=c(12400, 24045, 35022, 12284, 8476, 0)
+    ,`Kepler title` = c(NA, "Lalibertines","Lalibertines","Lalibertines","Lalibertines","Lalibertines")
+    ,`Kepler text` = c(NA, "First encounter", "They are very tall", "Attack on our crew!", "Heavy casualties", "All crew lost")
+    ,`Gliese 163 mission` = c(10645, 12374, 15766, 34334, 66467, 79463)
+    ,`Gliese title` = c(NA, NA, "Gallantors", "Gallantors", "Gallantors", "Gallantors")
+    ,`Gliese text` = c(NA, NA, "First Encounter", "Statement of shared principles", "Mysteries revealed", "Omniscience achieved")
+  )
+  ,chart.type="AnnotationChart")
+```
+
+### Diff
+```{r test3, results='asis'}
+googleCharts::googleChart(
+  data.frame(
+    Major = c("Business", "Education", "Social Sciences", "Health", "Psychology")
+    ,Degrees = c(256070, 108034, 127101, 81863, 74194)
+    ,Degrees_new = c(358293, 101265, 172780, 129634, 97216)
+  ), columns = list(Degrees = list(role="old-data"))
+  ,chart.type = "PieChart"
+) %>%
+  googleChartOptions(
+    diff = list(innerCircle = list(borderFactor= 0.08))
+  )
+```
+
+### GeoMap
+```{r map, results='asis'}
+googleCharts::googleChart(
+  data.frame(
+    Country=c('Germany', 'USA', 'Brazil', 'Canada', 'France', 'RU')
+    ,Popularity=c(700, 300, 400, 500, 600, 800)
+  )
+  ,chart.type="GeoMap")
+```
+
+### Timeline
+```{r timeline}
+googleCharts::googleChart(
+  data.frame(
+    President=c('Washington', 'Adams', 'Jefferson')
+    ,Start=as.Date(c("1789-04-30", "1797-03-04", "1801-03-04"))
+    ,End=as.Date(c("1797-03-04", "1801-03-04", "1809-03-04"))
+  )
+  ,chart.type="Timeline"
+  ,height = "200px")
+```
+
+### Area
+```{r area}
+googleCharts::googleChart(
+  df.sp.sector.values
+  ,chart.type="AreaChart") %>%
+  googleChartOptions(isStacked = "relative", focusTarget="category"
+    ,legend=list(position="top", maxLines=3))
+```
+
+### Bar
+```{r bar}
+googleCharts::googleChart(
+  subset(df.sp.sector.values
+    ,month %in% as.Date(c("1998-12-01", "2000-08-01", "2016-10-01")))
+  ,chart.type="BarChart"
+  ,columns=list(month=list(type="string"))) %>%
+  googleChartOptions(isStacked = T, legend=list(position="top"))
+```
+
+###Calendar
+```{r calendar}
+googleChart(df.baltimore.temps
+  ,chart.type="Calendar"
+  ,height="300px") %>% 
+  googleChartOptions(calendar=list(cellSize= 10 ))
+```
+
+### Column
+```{r column}
+googleCharts::googleChart(
+  subset(df.sp.sector.values
+    ,month %in% as.Date(c("1998-12-01", "2000-08-01", "2016-10-01")))
+  ,chart.type="ColumnChart"
+  ,columns=list(month=list(type="string"))
+) %>%
+  googleChartOptions(width="100%")
+
+```
+
+### Gannt
+
+```{r gannt}
+googleCharts::googleChart(
+  data.frame(
+    `Task ID` = c("Research", "Write", "Cite", "Complete", "Outline")
+    ,`Task Name` = c("Find sources", "Write paper", "Create bibliography", "Hand in paper", "Outline paper")
+    ,`Resource` = c(NA, "write", "write", "complete", "write")
+    ,`Start Date` = as.Date(c("2015-01-01", NA, NA, NA, NA))
+    ,`End Date` = as.Date(c("2015-01-05", "2015-01-09", "2015-01-07", "2015-01-10", "2015-01-06"))
+    ,`Duration` = c(NA, 3, 1, 1, 1) * 24 * 60 * 60 * 1000
+    ,`Percent Complete` = c(100, 25, 20, 0, 100)
+    ,`Dependencies` = c(NA, "Research,Outline", "Research", "Cite,Write", "Research")
+  )
+  ,chart.type="Gantt"
+  ,height="300px")
+```
+
+### Motion
+
+#### Simple Example
+```{r motion}
+googleCharts::googleChart(
+  data.frame(
+    Fruit=c('Apples', 'Oranges', 'Bananas', 'Apples', 'Oranges', 'Bananas')
+    ,Date=as.Date(c("1988-01-01", "1988-01-01", "1988-01-01", "1989-06-01", "1989-06-01", "1989-06-01"))
+    ,Sales=c(1000, 1150, 300, 1200, 750, 788)
+    ,Expenses=c(300, 200, 250, 400, 150, 617)
+    ,Locations=c("East", "West", "West", "East", "West", "West")
+    ,stringsAsFactors = F
+  )
+  ,height="300px"
+  ,chart.type="MotionChart"
+)
+```
+
+#### Saved State Example
+```{r motionSaved}
+googleCharts::googleChart(
+  df.life_exp_v_gdp.data
+  ,chart.type="MotionChart"
+  ,height="300px"
+) %>% googleChartOptions(
+  state=jsonlite:::as.scalar(paste0('{"xZoomedDataMin":431,"xZoomedIn":false,'
+    ,'"iconKeySettings":[],"nonSelectedAlpha":0.4,"yZoomedDataMax":83.3,"yLambda":1,'
+    ,'"yZoomedIn":false,"time":"1800","xLambda":0,"showTrails":false,"orderedByX":false,'
+    ,'"uniColorForNonSelected":false,"duration":{"multiplier":1,"timeUnit":"D"},'
+    ,'"yZoomedDataMin":8.11,"yAxisOption":"2","colorOption":"_UNIQUE_COLOR",'
+    ,'"dimensions":{"iconDimensions":["dim0"]},"playDuration":15000,"iconType":"BUBBLE",'
+    ,'"xZoomedDataMax":53354,"orderedByY":false,"xAxisOption":"4","sizeOption":"3"}')))
+```
+
+### Sankey
+```{r sankey}
+googleCharts::googleChart(
+  data.frame(
+    `From` = c(rep("A", 3), rep("B", 3))
+    ,`To` = rep(c("X", "Y", "Z"),2)
+    ,`Weight` = c(5, 7, 6, 2, 9, 4)
+  )
+  ,chart.type="Sankey"
+)
+```

@@ -42,14 +42,17 @@ googleChart <- function(data, chart.type, columns = NULL, width = NULL, height =
   #Looks pretty ugly - may need to re-visit later.
   if(any(vec.col.gtable.classes == "date")) {
     for(str.col in names(data)[vec.col.gtable.classes =="date"]) {
-      data[[str.col]] <- paste0(
-        "Date("
-        ,apply(t(as.matrix(as.POSIXlt(as.Date(data[[str.col]])))[,c("year", "mon", "mday")]) +
-          rbind(rep(1900, length(data[str.col])),rep(0,length(data[[str.col]])), rep(0, length(data[[str.col]]))),2,FUN=function(x) paste(x, collapse=","))
-        ,")")
+      data[[str.col]] <- ifelse(is.na(data[[str.col]])
+        ,NA
+        ,paste0(
+          "Date("
+          ,apply(t(as.matrix(as.POSIXlt(as.Date(data[[str.col]])))[,c("year", "mon", "mday")]) +
+            rbind(rep(1900, length(data[str.col])),rep(0,length(data[[str.col]])), rep(0, length(data[[str.col]]))),2,FUN=function(x) paste(x, collapse=","))
+          ,")")
+        )
     }
   }
-  x$data <- jsonlite::toJSON(unname(data))
+  x$data <- jsonlite::toJSON(unname(data), na = "null")
 
   #Some default global options
   x$options <- list(

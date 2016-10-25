@@ -196,3 +196,22 @@ googleCharts::googleChart(
   ,chart.type="Sankey"
 )
 ```
+
+### Scatter
+
+```{r scatter}
+lst.data<-split(airquality[,c("Temp", "Ozone")], airquality$Month)
+df.to.plot <-
+  suppressWarnings(
+    data.table::setnames(
+      Reduce(function(...) merge(..., all=T, by=c("Temp")), lst.data)
+      ,c("Temp",paste0("Month: ",names(lst.data)))
+    )
+  )
+googleChart(df.to.plot, chart.type="ScatterChart") %>%
+  googleChartOptions(
+    trendlines=list("3"=list(type="exponential"))
+    ,hAxis = list(title="Temperature")
+    ,vAxis = list(title="Ozone")
+  )
+```

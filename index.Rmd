@@ -9,8 +9,10 @@ output:
 
 ```{r setup, include=FALSE}
 library(googleCharts)
-#Thank you quantmod+yahoo:
+library(xts)
+#Thank you: quantmod+yahoo:
 data("df.sp.sector.values")
+data("df.aapl.data")
 #Thank you: https://www.gapminder.org/data/
 data("df.life_exp_v_gdp.data")
 #Thank you: http://www7.ncdc.noaa.gov/CDO/cdodata.cmd
@@ -19,28 +21,25 @@ data("df.baltimore.temps")
 
 ## Design
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The idea is to keep this [R] package light, and provide only a thin wrapper to the underlying [JS library](https://developers.google.com/chart/interactive/docs/gallery).  Note, the Google Charts API requires internet access, as much of the library is loaded dynamically.  
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+We note that, this package works well when charting inside [R]Studio, as well as when used in [R]Markdown reports and Shiny applications.
+
+The advantage of keeping the [R] layer at a minimum is that we allow the end-user unfettered access to all of the functionality of the Google Charts API.  The disadvantage is that we do not enforce much in the way of parameter structure, and as a result errors are more difficult to debug.  In addition, it may require the end user spend time consulting the documentation of the JS library.  
+
+Similar to most `htmlwidgets` packages, this one too follows call-chaining structure via the `%>%` symbol.  The starting point is the `googleChart` function that takes as input a `data` and `chart.type` parameters.  In addition, one can pass a `columns` parameter that provides for a way to override some of the meta-data asoociated with each column (such as role, type or label).  Note, different chart support different options - as with most options
+
+The one other export from this package is `googleChartOptions` function that allows the end-user access to chart options (see, for example, [here](https://developers.google.com/chart/interactive/docs/gallery/combochart#configuration-options)).  Note, not all charts support the same set of options.
+
 
 ## Data format
 
+We note that all charts in the Google line-up require a *wide* data-set (for us, wide data-frames.)  The on-line documentation does a fair job of describing the structure of the underlying data-set (see for example, [the Data Format section of the Line Chart documentation.](https://developers.google.com/chart/interactive/docs/gallery/linechart#data-format))
+
 ## Chart Examples
 
-### Table
-```{r table, results='asis'}
-library(googleCharts)
-googleCharts::googleChart(
-  data.frame(
-    Name=c('John', 'Mary', 'Steve', 'Ellen', 'Mike')
-    ,Salary=c(10000, 25000, 8000, 20000, 12000)
-    ,`Full Time`=c(T,T,F,T,F)
-    ,stringsAsFactors = F
-  )
-  ,chart.type="Table"
-  ,height = "170px"
-)
-```
+Below are select examples that highlight the functionalit of this package.  In addition to the charts found below, all charts currently part of the [Google Charts line-up](https://developers.google.com/chart/interactive/docs/gallery) should be accessible via this package.  In producing the highlights below, in many cases we were inspired by the examples on the Google Charts demo page.
+
 
 ### Annotation
 ```{r test2, results='asis'}
@@ -55,43 +54,6 @@ googleCharts::googleChart(
     ,`Gliese text` = c(NA, NA, "First Encounter", "Statement of shared principles", "Mysteries revealed", "Omniscience achieved")
   )
   ,chart.type="AnnotationChart")
-```
-
-### Diff
-```{r test3, results='asis'}
-googleCharts::googleChart(
-  data.frame(
-    Major = c("Business", "Education", "Social Sciences", "Health", "Psychology")
-    ,Degrees = c(256070, 108034, 127101, 81863, 74194)
-    ,Degrees_new = c(358293, 101265, 172780, 129634, 97216)
-  ), columns = list(Degrees = list(role="old-data"))
-  ,chart.type = "PieChart"
-) %>%
-  googleChartOptions(
-    diff = list(innerCircle = list(borderFactor= 0.08))
-  )
-```
-
-### GeoMap
-```{r map, results='asis'}
-googleCharts::googleChart(
-  data.frame(
-    Country=c('Germany', 'USA', 'Brazil', 'Canada', 'France', 'RU')
-    ,Popularity=c(700, 300, 400, 500, 600, 800)
-  )
-  ,chart.type="GeoMap")
-```
-
-### Timeline
-```{r timeline}
-googleCharts::googleChart(
-  data.frame(
-    President=c('Washington', 'Adams', 'Jefferson')
-    ,Start=as.Date(c("1789-04-30", "1797-03-04", "1801-03-04"))
-    ,End=as.Date(c("1797-03-04", "1801-03-04", "1809-03-04"))
-  )
-  ,chart.type="Timeline"
-  ,height = "200px")
 ```
 
 ### Area
@@ -111,6 +73,24 @@ googleCharts::googleChart(
   ,chart.type="BarChart"
   ,columns=list(month=list(type="string"))) %>%
   googleChartOptions(isStacked = T, legend=list(position="top"))
+```
+
+### Bubble
+```{r bubble}
+googleCharts::googleChart(
+  data.table::data.table(df.life_exp_v_gdp.data)[Year==1980][,
+    list(`Country`, `GDP Per Capita`=log(`GDP Per Capita`), `Life Expectancy`
+         ,`Type`=ifelse(`Country` %in% 
+                          c("Germany", "United States", "United Kingdom", "Japan")
+                        ,"Developed", "Emerging")
+         ,`Population`)
+  ]
+  ,chart.type="BubbleChart"
+) %>%
+  googleCharts::googleChartOptions(
+    hAxis = list(title = "Log GDP Per Capita")
+    ,vAxis = list(title = "Life Expectancy")
+  )
 ```
 
 ###Calendar
@@ -133,8 +113,28 @@ googleCharts::googleChart(
 
 ```
 
-### Gannt
+###Combo
+```{r combo}
+googleCharts::googleChart(
+        df.aapl.data[,c("month", "Price", "Volume")]
+        ,chart.type="ComboChart"
+      ) %>%
+        googleCharts::googleChartOptions(
+          title="Apple Closing Prices", legend = list(position = "bottom")
+          ,series = list(
+            list()
+            ,list(targetAxisIndex = 1, type='bars')
+          )
+          ,vAxes = list(
+            list(title = "Monthly Closing Prices")
+            ,list(title="Mean Monthly Volume (MM)")
+          )
+          ,focusTarget = "category"
+          ,explorer = list()
+        )
+```
 
+### Gannt
 ```{r gannt}
 googleCharts::googleChart(
   data.frame(
@@ -149,6 +149,16 @@ googleCharts::googleChart(
   )
   ,chart.type="Gantt"
   ,height="300px")
+```
+
+### GeoMap
+```{r map, results='asis'}
+googleCharts::googleChart(
+  data.frame(
+    Country=c('Germany', 'USA', 'Brazil', 'Canada', 'France', 'RU')
+    ,Popularity=c(700, 300, 400, 500, 600, 800)
+  )
+  ,chart.type="GeoMap")
 ```
 
 ### Motion
@@ -185,6 +195,21 @@ googleCharts::googleChart(
     ,'"xZoomedDataMax":53354,"orderedByY":false,"xAxisOption":"4","sizeOption":"3"}')))
 ```
 
+### Pie
+
+```{r pie}
+googleCharts::googleChart(
+  data.frame(
+    Major = c("Business", "Education", "Social Sciences", "Health", "Psychology")
+    ,Degrees = c(256070, 108034, 127101, 81863, 74194)
+  )
+  ,chart.type = "PieChart"
+) %>%
+  googleChartOptions(
+    diff = list(innerCircle = list(borderFactor= 0.08))
+  )
+```
+
 ### Sankey
 ```{r sankey}
 googleCharts::googleChart(
@@ -215,17 +240,164 @@ googleChart(df.to.plot, chart.type="ScatterChart") %>%
   )
 ```
 
+### Timeline
+```{r timeline}
+googleCharts::googleChart(
+  data.frame(
+    President=c('Washington', 'Adams', 'Jefferson')
+    ,Start=as.Date(c("1789-04-30", "1797-03-04", "1801-03-04"))
+    ,End=as.Date(c("1797-03-04", "1801-03-04", "1809-03-04"))
+  )
+  ,chart.type="Timeline"
+  ,height = "200px")
+```
+
+### Table
+```{r table, results='asis'}
+library(googleCharts)
+googleCharts::googleChart(
+  data.frame(
+    Name=c('John', 'Mary', 'Steve', 'Ellen', 'Mike')
+    ,Salary=c(10000, 25000, 8000, 20000, 12000)
+    ,`Full Time`=c(T,T,F,T,F)
+    ,stringsAsFactors = F
+  )
+  ,chart.type="Table"
+  ,height = "170px"
+)
+```
+
 ### WordTree
 ```{r wordtree}
 googleChart(
   data.frame(
-    'Phrases' = c('cats are better than dogs','cats eat kibble','cats are better than hamsters'
-                  ,'cats are awesome','cats are people too','cats eat mice','cats meowing'
-                  ,'cats in the cradle','cats eat mice','cats in the cradle lyrics','cats eat kibble'
-                  ,'cats for adoption','cats are family','cats eat mice','cats are better than kittens'
-                  ,'cats are evil','cats are weird','cats eat mice')
+    'Phrases' = c(
+      'cats are better than dogs','cats eat kibble','cats are better than hamsters'
+      ,'cats are awesome','cats are people too','cats eat mice','cats meowing'
+      ,'cats in the cradle','cats eat mice','cats in the cradle lyrics','cats eat kibble'
+      ,'cats for adoption','cats are family','cats eat mice','cats are better than kittens'
+      ,'cats are evil','cats are weird','cats eat mice'
+    )
   )
   ,chart.type = "WordTree"
 ) %>%
   googleChartOptions(wordtree = list(format="implicit", word="cats"))
+```
+
+##Other Features
+
+###Roles
+As described [here](https://developers.google.com/chart/interactive/docs/roles), Google Charts integrates support for `role` columns that usually carry meta-data asoociated with the chart being displayed.  Note, charts may support only a limitted set of roles.
+
+```{r interval}
+googleCharts::googleChart(
+  subset(df.aapl.data, month>="2000-01-01" & month<="2010-01-01")[
+    ,c("month", "Price", "Low", "High")
+  ]
+  ,columns = list(Low=list(role="interval"), High=list(role="interval"))
+  ,chart.type = "LineChart"
+) %>%
+  googleCharts::googleChartOptions(intervals=list(style="line"))
+```
+
+####Tooltips
+
+One oft used role column in the data-set is the one carrying custom tooltip information for the chart.  See the elaborate example below.
+
+```{r tooltip}
+createTooltip <- function(str.flag.url, int.total.gold, int.total.silver, int.total.bronze) {
+  paste0('<div style="padding:5px 5px 5px 5px;">',
+      '<img src="https://upload.wikimedia.org/wikipedia/commons/', str.flag.url , '" style="width:75px;height:50px"><br/>',
+      "<table class='medals_layout'>", "<tr>",
+      '<td><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Gold_medal.svg" style="width:25px;height:25px"/></td>',
+      '<td><b>', int.total.gold, '</b></td>', '</tr>', '<tr>',
+      '<td><img src="https://upload.wikimedia.org/wikipedia/commons/0/03/Silver_medal.svg" style="width:25px;height:25px"/></td>',
+      '<td><b>', int.total.silver, '</b></td>', '</tr>', '<tr>',
+      '<td><img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Bronze_medal.svg" style="width:25px;height:25px"/></td>',
+      '<td><b>', int.total.bronze, '</b></td>', '</tr>', '</table>', '</div>')
+}
+googleCharts::googleChart(
+  data.frame(
+    Country = c("USA", "China", "UK")
+    ,Info = c(
+      createTooltip("2/28/Flag_of_the_USA.svg",46,29,29)
+      ,createTooltip("f/fa/Flag_of_the_People%27s_Republic_of_China.svg",38,27,23)
+      ,createTooltip("a/ae/Flag_of_the_United_Kingdom.svg",29,17,19)
+    )
+    ,Gold = c(46, 38, 29)
+    ,Silver = c(29, 27, 17)
+    ,Bronze = c(29, 23, 19)
+  )
+  ,columns = list(Info=list(role="tooltip",p=list(html=T)))
+  ,chart.type = "ColumnChart"
+) %>%
+  googleCharts::googleChartOptions(
+    tooltip=list(isHtml=T)
+    ,focusTarget="category"
+    ,title="London Olympics Medals"
+    ,colors=list('#FFD700', '#C0C0C0', '#8C7853')
+  )
+```
+
+###Formatters
+
+```{r formatters}
+googleCharts::googleChart(
+  data.frame(
+    Department=c('Shoes', 'Sports', 'Toys', 'Electronics', 'Food', 'Art')
+    ,Revenues=c(10700, -15400, 12500, -2100, 22600, 1100)
+    ,stringsAsFactors = F
+  )
+  ,chart.type="Table"
+  ,height = "170px"
+) %>%
+  googleChartOptions(allowHtml = T, formatter=htmlwidgets::JS("
+    function(data) {
+      var formatter = new google.visualization.NumberFormat({prefix: '$', negativeColor: 'red', negativeParens: true});
+      formatter.format(data, 1);
+    }"))
+```
+
+###Diff Charts
+With bar, column, pie, and scatter charts you have the ability to display changes in your data-set on the same canvas.
+
+```{r diffPie, results='asis'}
+googleCharts::googleChart(
+  data.frame(
+    Major = c("Business", "Education", "Social Sciences", "Health", "Psychology")
+    ,Degrees = c(256070, 108034, 127101, 81863, 74194)
+    ,Degrees_new = c(358293, 101265, 172780, 129634, 97216)
+  ), columns = list(Degrees = list(role="old-data"))
+  ,chart.type = "PieChart"
+) %>%
+  googleChartOptions(
+    diff = list(innerCircle = list(borderFactor= 0.08))
+  )
+```
+
+```{r diffScatter}
+suppressWarnings(
+  googleChart(
+    merge(
+      data.table::data.table(x=sample(1:50, replace=T), y=sample(1:50, replace=T))[
+        ,list(x, x_new=x+sample(-5:2, size=50, replace=T)
+              ,medicine_one=y, medicine_one_new= y+sample(-1:5, size=50, replace=T))]
+      ,data.table::data.table(x=sample(1:50, replace=T), y=sample(1:50, replace=T))[
+        ,list(x, x_new=x+sample(-2:5, size=50, replace=T)
+              ,medicine_two=y, medicine_two_new= y+sample(-5:1, size=50, replace=T))]
+      ,by=c("x", "x_new")
+      ,all=T
+    )
+    ,columns = list(
+      x=list(role="old-data")
+      ,x_new=list(role="data")
+      ,medicine_one=list(role="old-data")
+      ,medicine_one_new = list(label="Medicine 1", role="data")
+      ,medicine_two=list(role="old-data")
+      ,medicine_two_new = list(label="Medicine 2", role="data")
+    )
+    ,chart.type="ScatterChart"
+  ) %>%
+    googleChartOptions(theme="maximized")
+)
 ```

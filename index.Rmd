@@ -1,5 +1,5 @@
 ---
-title: "Google Charts"
+title: "Google Charts for [R]"
 output:
   html_document:
     toc: true
@@ -8,6 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+set.seed(109)
 library(googleCharts)
 library(xts)
 #Thank you: quantmod+yahoo:
@@ -21,24 +22,24 @@ data("df.baltimore.temps")
 
 ## Design
 
-The idea is to keep this [R] package light, and provide only a thin wrapper to the underlying [JS library](https://developers.google.com/chart/interactive/docs/gallery).  Note, the Google Charts API requires internet access, as much of the library is loaded dynamically.  
+The idea is to keep this [R] package light, and provide only a thin wrapper to the underlying [JS library](https://developers.google.com/chart/interactive/docs/gallery).
 
-We note that, this package works well when charting inside [R]Studio, as well as when used in [R]Markdown reports and Shiny applications.
+We note that, this package works well when charting inside [R]Studio, as well as when used in [R]Markdown reports and Shiny applications.  It does, however, require internet access as the Google Charts API loads much of the library is loaded dynamically.  
 
-The advantage of keeping the [R] layer at a minimum is that we allow the end-user unfettered access to all of the functionality of the Google Charts API.  The disadvantage is that we do not enforce much in the way of parameter structure, and as a result errors are more difficult to debug.  In addition, it may require the end user spend time consulting the documentation of the JS library.  
+The advantage of keeping the [R] layer at a minimum is that we allow the end-user unfettered access to all of the functionality of the Google Charts API.  The disadvantage is that we do not enforce much in the way of parameter structure, and as a result errors are more difficult to debug.  In addition, this approach may require the end user spend time consulting the documentation of the JS library.  
 
-Similar to most `htmlwidgets` packages, this one too follows call-chaining structure via the `%>%` symbol.  The starting point is the `googleChart` function that takes as input a `data` and `chart.type` parameters.  In addition, one can pass a `columns` parameter that provides for a way to override some of the meta-data asoociated with each column (such as role, type or label).  Note, different chart support different options - as with most options
+Similar to most `htmlwidgets` packages, this one too follows call-chaining structure via the `%>%` symbol.  The starting point is the `googleChart` function that takes as input a `data` and `chart.type` parameters.  In addition, one can pass a `columns` parameter that provides for a way to override some of the meta-data asoociated with each column (such as role, type or label).
 
 The one other export from this package is `googleChartOptions` function that allows the end-user access to chart options (see, for example, [here](https://developers.google.com/chart/interactive/docs/gallery/combochart#configuration-options)).  Note, not all charts support the same set of options.
 
 
 ## Data format
 
-We note that all charts in the Google line-up require a *wide* data-set (for us, wide data-frames.)  The on-line documentation does a fair job of describing the structure of the underlying data-set (see for example, [the Data Format section of the Line Chart documentation.](https://developers.google.com/chart/interactive/docs/gallery/linechart#data-format))
+All charts in the Google line-up require a *wide* data-set (for us, wide data-frames.)  The on-line documentation does a fair job of describing the structure of the underlying data-set (see for example, [the Data Format section of the Line Chart documentation.](https://developers.google.com/chart/interactive/docs/gallery/linechart#data-format))
 
 ## Chart Examples
 
-Below are select examples that highlight the functionalit of this package.  In addition to the charts found below, all charts currently part of the [Google Charts line-up](https://developers.google.com/chart/interactive/docs/gallery) should be accessible via this package.  In producing the highlights below, in many cases we were inspired by the examples on the Google Charts demo page.
+Below are select examples that highlight the functionality of this package.  In addition to the charts found below, all charts currently part of the [Google Charts line-up](https://developers.google.com/chart/interactive/docs/gallery) should be accessible via this package.  In producing the highlights below, in many cases we were inspired by the examples on the Google Charts demo page.
 
 
 ### Annotation
@@ -116,22 +117,22 @@ googleCharts::googleChart(
 ###Combo
 ```{r combo}
 googleCharts::googleChart(
-        df.aapl.data[,c("month", "Price", "Volume")]
-        ,chart.type="ComboChart"
-      ) %>%
-        googleCharts::googleChartOptions(
-          title="Apple Closing Prices", legend = list(position = "bottom")
-          ,series = list(
-            list()
-            ,list(targetAxisIndex = 1, type='bars')
-          )
-          ,vAxes = list(
-            list(title = "Monthly Closing Prices")
-            ,list(title="Mean Monthly Volume (MM)")
-          )
-          ,focusTarget = "category"
-          ,explorer = list()
-        )
+  df.aapl.data[,c("month", "Price", "Volume")]
+  ,chart.type="ComboChart"
+) %>%
+  googleCharts::googleChartOptions(
+    title="Apple Closing Prices", legend = list(position = "bottom")
+    ,series = list(
+      list()
+      ,list(targetAxisIndex = 1, type='bars')
+    )
+    ,vAxes = list(
+      list(title = "Monthly Closing Prices")
+      ,list(title="Mean Monthly Volume (MM)")
+    )
+    ,focusTarget = "category"
+    ,explorer = list()
+  )
 ```
 
 ### Gannt

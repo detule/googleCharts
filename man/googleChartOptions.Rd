@@ -12,7 +12,7 @@ googleChartOptions(gChart, ...)
 \item{...}{parameters specific to the JS/google library.}
 
 \item{formatter}{An object created using htmlwidget::JS(""), describing a function taking a google
-DataTable as input and applying \href{https://developers.google.com/chart/interactive/docs/reference#formatters}{formatters}, as needed.  See, \href{}{this example}.}
+DataTable as input and applying \href{https://developers.google.com/chart/interactive/docs/reference#formatters}{formatters}, as needed.  See, \href{http://detule.github.io/googleCharts/#formatters}{this example}.}
 
 \item{eventHandlers}{An object created using htmlwidget::JS("").}
 }
@@ -30,7 +30,7 @@ and clickListener, described in more detail in the Arguments section.
 }
 \note{
 See the 
-  \href{}{online
+  \href{http://detule.github.io/googleCharts}{online
   documentation} for additional details and examples.
 }
 

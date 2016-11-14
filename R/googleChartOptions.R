@@ -10,14 +10,14 @@
 #' 
 #' @param gChart An object instantiated using \code{\link{googleChart}} to add configuration options to.
 #' @param formatter An object created using htmlwidget::JS(""), describing a function taking a google
-#'  DataTable as input and applying \href{https://developers.google.com/chart/interactive/docs/reference#formatters}{formatters}, as needed.  See, \href{}{this example}.
+#'  DataTable as input and applying \href{https://developers.google.com/chart/interactive/docs/reference#formatters}{formatters}, as needed.  See, \href{http://detule.github.io/googleCharts/#formatters}{this example}.
 #' @param eventHandlers An object created using htmlwidget::JS("").
 #' @param ... parameters specific to the JS/google library.
 #'
 #' @return googleChart
 #'   
 #' @note See the 
-#'   \href{}{online
+#'   \href{http://detule.github.io/googleCharts}{online
 #'   documentation} for additional details and examples.
 #' @export
 googleChartOptions <- function(gChart, ...) {

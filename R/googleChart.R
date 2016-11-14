@@ -1,3 +1,27 @@
+#' googleChart
+#'
+#' Main entry point - all charts are produced by passing a data-set using the data parameter, and selecting
+#' a type of chart using the chart.type parameter.  Data format is specific to each type of chart;  the user should consult the
+#' relevant API documentation as needed (for example \href{https://developers.google.com/chart/interactive/docs/gallery/columnchart#data-format}{Data format for column charts}).
+#'
+#' In addition, we allow the user to override column specific meta-data using the columns parameter.  See \href{http://detule.github.io/googleCharts/#column}{here} for an example on how
+#' one can override the type of data reported to the underlying API for each column.
+#'
+#' @param data A wide data-frame containing data and meta-data columns
+#' @param chart.type A string denoting the type of chart to produce.  We are currently not enforcing any discipline on this parameter to allow the user access to new and experimental charts
+#'  as they are made available to the JS library loader.  Commonly used options are AnnotationChart, AreaChart, BarChart, BubbleChart, Calendar, ColumnChart, ComboChart, Gantt, GeoMap, MotionChart,
+#'  PieChart, Sankey, ScatterChart, Timeline, Table, or WordTree.  However there are many more, such as CandlestickChart, Gauge, Histogram, etc - consult
+#'  the \href{https://developers.google.com/chart/interactive/docs/gallery}{JS gallery page} for a complete listing.
+#' @param columns A list named after colnames(data) (optional)
+#' @param width Width in pixels (optional, defaults to automatic sizing, except in the case of GeoMap and MotionMap, whereby it defaults to 556px and 500px, respectively)
+#' @param height Height in pixels (optional, defaults to automatic sizing)
+#'
+#' @return googleChart
+#'
+#' @note See the
+#'   \href{http://detule.github.io/googleCharts}{online
+#'   documentation} for additional details and examples.
+#'
 #' @export
 googleChart <- function(data, chart.type, columns = NULL, width = NULL, height = NULL) {
 

@@ -76,6 +76,40 @@ googleCharts::googleChart(
   googleChartOptions(isStacked = T, legend=list(position="top"))
 ```
 
+### Box Plot
+```{r box}
+googleChart(
+  data.frame(
+    x = c("a", "b", "c")
+    ,dummy_series=c(100, 110, 120)
+    ,mymax = c(100, 120, 130)
+    ,mymin = c(50, 60, 70)
+    ,myfirstQuartile = c(60, 70, 80)
+    ,mymedian = c(70, 80, 90)
+    ,mythirdQuartile = c(90,100, 120)
+  )
+  ,columns=list(
+    mymax=list(role="interval")
+    ,mymin=list(role="interval")
+    ,myfirstQuartile=list(role="interval")
+    ,mymedian=list(role="interval")
+    ,mythirdQuartile=list(role="interval"))
+  ,chart.type="LineChart"
+) %>%
+  googleChartOptions(
+    title="BoxPlot"
+    ,chartArea=list(right="10%", width="80%")
+    ,legend=list(position="none")
+    ,lineWidth = 0
+    ,series=list(list(color='#D3362D'))
+    ,intervals = list(boxWidth=1, barWidth=1, lineWidth=2, style='boxes')
+    ,interval = list(
+      mymax=list(style="bars",fillOpacity=1,color= '#777'), mymin=list(style="bars",fillOpacity=1, color= '#777')
+    )
+    ,orientation="vertical"
+  )
+```
+
 ### Bubble
 ```{r bubble}
 googleCharts::googleChart(

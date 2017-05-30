@@ -70,7 +70,7 @@ googleChart <- function(data, chart.type, columns = NULL, width = NULL, height =
         ,NA
         ,paste0(
           "Date("
-          ,apply(t(as.matrix(as.POSIXlt(as.Date(data[[str.col]])))[,c("year", "mon", "mday")]) +
+          ,apply(t(as.matrix(as.POSIXlt(as.Date(data[[str.col]])))[,c("year", "mon", "mday"), drop=F]) +
             rbind(rep(1900, length(data[str.col])),rep(0,length(data[[str.col]])), rep(0, length(data[[str.col]]))),2,FUN=function(x) paste(x, collapse=","))
           ,")")
         )

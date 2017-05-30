@@ -96,7 +96,7 @@ loadChartsAndWidget = function() {
 };
 
 (function() {
-  if(window.HTMLWidgets.shinyMode && typeof(google)!=="undefined") {
+  if(window.HTMLWidgets.shinyMode) {
     loadWidget();
   } else {
     var script = document.createElement("script");
